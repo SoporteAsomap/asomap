@@ -1,6 +1,9 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
+from django_prose_editor.fields import ProseEditorField
+from bs4 import BeautifulSoup
+
 
 class Hero(models.Model):
     title = models.CharField(max_length=200)
@@ -18,10 +21,25 @@ class Hero(models.Model):
 
 class QuienesSomos(models.Model):
     title = models.CharField(max_length=200)
-    paragraphs = models.TextField(
-        blank=True,
-        verbose_name="Párrafos",
-        help_text="Párrafos separados por doble salto de línea (Enter)"
+    paragraphs = ProseEditorField(
+        extensions={
+            "Bold": True,
+            "Italic": True,
+            "Underline": True,
+            "Strike": True,
+            "Heading": True,
+            "BulletList": True,
+            "OrderedList": True,
+            "Link": True,
+            "Blockquote": True,
+            "Code": True,
+            "CodeBlock": True,
+            "Paragraph": True,
+            "HardBreak": True,
+        },
+        sanitize=True,  # Server side sanitization is strongly recommended
+        verbose_name="Contenido completo",
+        help_text="Contenido completo con formato enriquecido. Presiona Enter para nuevo párrafo, Shift+Enter para salto de línea."
     )
     image_src = models.ImageField(upload_to='about/quienes-somos/', null=True, blank=True)
     image_alt = models.CharField(max_length=200, null=True, blank=True)
@@ -47,10 +65,25 @@ class QuienesSomos(models.Model):
 
 class NuestraHistoria(models.Model):
     title = models.CharField(max_length=200)
-    paragraphs = models.TextField(
-        blank=True,
-        verbose_name="Párrafos",
-        help_text="Párrafos separados por doble salto de línea (Enter)"
+    paragraphs = ProseEditorField(
+        extensions={
+            "Bold": True,
+            "Italic": True,
+            "Underline": True,
+            "Strike": True,
+            "Heading": True,
+            "BulletList": True,
+            "OrderedList": True,
+            "Link": True,
+            "Blockquote": True,
+            "Code": True,
+            "CodeBlock": True,
+            "Paragraph": True,
+            "HardBreak": True,
+        },
+        sanitize=True,  # Server side sanitization is strongly recommended
+        verbose_name="Contenido completo",
+        help_text="Contenido completo con formato enriquecido. Presiona Enter para nuevo párrafo, Shift+Enter para salto de línea."
     )
     image_src = models.ImageField(upload_to='about/historia/', null=True, blank=True)
     image_alt = models.CharField(max_length=200, null=True, blank=True)
@@ -65,21 +98,37 @@ class NuestraHistoria(models.Model):
     def __str__(self):
         return self.title
 
-    @property
-    def paragraphs_list(self):
-        """
-        Retorna los párrafos como lista para el frontend
-        """
-        if self.paragraphs:
-            return [p.strip() for p in self.paragraphs.split('\n\n') if p.strip()]
-        return []
+    # @property
+    # def paragraphs_list(self):
+    #     """
+    #     Retorna el contenido HTML de ProseEditor para renderizado en el frontend
+    #     """
+    #     if not self.paragraphs:
+    #         return []
+
+    #     return self.paragraphs
 
 class Mision(models.Model):
     title = models.CharField(max_length=200)
-    description = models.TextField(
-        blank=True,
-        verbose_name="Descripción",
-        help_text="Descripción de la misión"
+    description = ProseEditorField(
+        extensions={
+            "Bold": True,
+            "Italic": True,
+            "Underline": True,
+            "Strike": True,
+            "Heading": True,
+            "BulletList": True,
+            "OrderedList": True,
+            "Link": True,
+            "Blockquote": True,
+            "Code": True,
+            "CodeBlock": True,
+            "Paragraph": True,
+            "HardBreak": True,
+        },
+        sanitize=True,  # Server side sanitization is strongly recommended
+        verbose_name="Contenido completo",
+        help_text="Contenido completo con formato enriquecido. Presiona Enter para nuevo párrafo, Shift+Enter para salto de línea."
     )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -94,10 +143,25 @@ class Mision(models.Model):
 
 class Vision(models.Model):
     title = models.CharField(max_length=200)
-    description = models.TextField(
-        blank=True,
-        verbose_name="Descripción",
-        help_text="Descripción de la visión"
+    description = ProseEditorField(
+        extensions={
+            "Bold": True,
+            "Italic": True,
+            "Underline": True,
+            "Strike": True,
+            "Heading": True,
+            "BulletList": True,
+            "OrderedList": True,
+            "Link": True,
+            "Blockquote": True,
+            "Code": True,
+            "CodeBlock": True,
+            "Paragraph": True,
+            "HardBreak": True,
+        },
+        sanitize=True,  # Server side sanitization is strongly recommended
+        verbose_name="Contenido completo",
+        help_text="Contenido completo con formato enriquecido. Presiona Enter para nuevo párrafo, Shift+Enter para salto de línea."
     )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -112,7 +176,26 @@ class Vision(models.Model):
 
 class Valor(models.Model):
     title = models.CharField(max_length=100)
-    description = models.TextField()
+    description = ProseEditorField(
+        extensions={
+            "Bold": True,
+            "Italic": True,
+            "Underline": True,
+            "Strike": True,
+            "Heading": True,
+            "BulletList": True,
+            "OrderedList": True,
+            "Link": True,
+            "Blockquote": True,
+            "Code": True,
+            "CodeBlock": True,
+            "Paragraph": True,
+            "HardBreak": True,
+        },
+        sanitize=True,  # Server side sanitization is strongly recommended
+        verbose_name="Contenido completo",
+        help_text="Contenido completo con formato enriquecido. Presiona Enter para nuevo párrafo, Shift+Enter para salto de línea."
+    )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

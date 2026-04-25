@@ -1,64 +1,110 @@
 import { httpClient } from '../../config/httpClient';
-import { API_CONFIG } from '../../config/config';
 import { ENDPOINTS } from '@/constants';
 import { debugLog, errorLog } from '@/utils/environment';
-import type { ICardsAPIResponse, ICardData } from '@/interfaces';
+import { normalizeObjectMedia } from '@/utils/media';
+
+type CardApiItem = {
+  id: number | string;
+  title: string;
+  description: string;
+  bannerImage?: string | null;
+  cardImage?: string | null;
+  image?: string | null;
+  image_url?: string | null;
+  card_type?: string;
+  features?: string[];
+  requirements?: string[];
+  benefits?: unknown[];
+  slug?: string;
+  is_active?: boolean;
+};
+
+type CardsApiResponse = {
+  count?: number;
+  next?: string | null;
+  previous?: string | null;
+  results: CardApiItem[];
+};
+
+const slugify = (text: string) =>
+  text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
 export const cardsService = {
-  getAllCards: async (): Promise<ICardData[]> => {
+  getAllCards: async () => {
     try {
-      debugLog('[CardsService] Fetching all cards');
-      
-      const response = await httpClient.get<ICardsAPIResponse>(ENDPOINTS.COLLECTIONS.PRODUCTS.CARDS);
-      
-      // Filtrar solo tarjetas activas y transformar datos
-      const cards: ICardData[] = response.data.results
-        .filter(card => card.is_active)
-        .map(card => ({
-          id: card.id,
-          title: card.title,
-          description: card.description,
-          bannerImage: card.bannerImage || '',
-          cardImage: card.cardImage || '',
-          cardType: card.card_type,
-          features: card.features,
-          requirements: card.requirements,
-          benefits: card.benefits,
-          slug: card.slug
-        }));
+      debugLog('[CardsService] Fetching all cards from backend');
 
-      debugLog('[CardsService] Cards fetched successfully:', cards);
-      return cards;
+      const response = await httpClient.get<CardsApiResponse>(
+        ENDPOINTS.COLLECTIONS.PRODUCTS.CARDS
+      );
 
+      debugLog('[CardsService] Backend response received successfully:', response.data);
+
+      const results = response.data?.results || [];
+
+      return results
+        .filter((item: CardApiItem) => item.is_active !== false)
+        .map((item: CardApiItem) =>
+          normalizeObjectMedia({
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            bannerImage: item.bannerImage,
+            cardImage: item.cardImage,
+            image: item.image,
+            image_url: item.image_url,
+            cardType: item.card_type || '',
+            features: item.features || [],
+            requirements: item.requirements || [],
+            benefits: item.benefits || [],
+            slug: item.slug || slugify(item.title),
+          })
+        );
     } catch (error) {
       errorLog('[CardsService] Error fetching cards:', error);
-      // En desarrollo, retornar array vacío para evitar errores
-      if (API_CONFIG.IS_DEVELOPMENT) {
-        console.warn('[CardsService] Development mode: returning empty array due to API error');
-        return [];
-      }
-      throw error; // En producción, lanzar el error
+      throw error;
     }
   },
 
-  getCardBySlug: async (slug: string): Promise<ICardData | null> => {
+  getCardById: async (id: string | number) => {
     try {
-      debugLog(`[CardsService] Fetching card by slug: ${slug}`);
-      
-      const cards = await cardsService.getAllCards();
-      const card = cards.find(c => c.slug === slug);
-      
-      if (card) {
-        debugLog('[CardsService] Card found:', card);
-        return card;
-      } else {
-        debugLog('[CardsService] Card not found');
-        return null;
-      }
+      debugLog(`[CardsService] Fetching card with ID ${id} from backend`);
 
+      const response = await httpClient.get<CardApiItem>(
+        `${ENDPOINTS.COLLECTIONS.PRODUCTS.CARDS}${id}/`
+      );
+
+      debugLog('[CardsService] Card response received successfully:', response.data);
+
+      const item = response.data;
+
+      return normalizeObjectMedia({
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        bannerImage: item.bannerImage,
+        cardImage: item.cardImage,
+        image: item.image,
+        image_url: item.image_url,
+        cardType: item.card_type || '',
+        features: item.features || [],
+        requirements: item.requirements || [],
+        benefits: item.benefits || [],
+        slug: item.slug || slugify(item.title),
+      });
     } catch (error) {
-      errorLog('[CardsService] Error fetching card by slug:', error);
-      throw error;
+      errorLog(`[CardsService] Error fetching card with ID ${id}:`, error);
+      return null;
+    }
+  },
+
+  getCardBySlug: async (slug: string) => {
+    try {
+      const cards = await cardsService.getAllCards();
+      return cards.find((item: { slug: string }) => item.slug === slug) || null;
+    } catch (error) {
+      errorLog(`[CardsService] Error fetching card by slug ${slug}:`, error);
+      return null;
     }
   }
 };

@@ -171,7 +171,7 @@ const AboutUs: React.FC = () => {
                   className="flex flex-col justify-center space-y-4"
                   variants={fadeInUp}
                 >
-                  {quienesSomos.paragraphs.map((paragraph, index) => (
+                  {/* {quienesSomos.paragraphs.map((paragraph, index) => (
                     <motion.p
                       key={index}
                       variants={cardVariants}
@@ -179,7 +179,14 @@ const AboutUs: React.FC = () => {
                     >
                       {paragraph}
                     </motion.p>
-                  ))}
+                  ))} */}
+
+                    <motion.p
+                    variants={cardVariants}
+                      className="text-base sm:text-lg leading-relaxed text-gray-600"
+                      dangerouslySetInnerHTML={{ __html: quienesSomos.paragraphs }}
+                    />
+
                 </motion.div>
                 <motion.div
                   className="relative aspect-w-16 aspect-h-9"
@@ -215,15 +222,11 @@ const AboutUs: React.FC = () => {
                   className="flex flex-col justify-center space-y-4"
                   variants={fadeInUp}
                 >
-                  {nuestraHistoria.paragraphs.map((paragraph, index) => (
-                    <motion.p
-                      key={index}
+                    <motion.div
                       variants={cardVariants}
                       className="text-base sm:text-lg leading-relaxed text-gray-600"
-                    >
-                      {paragraph}
-                    </motion.p>
-                  ))}
+                      dangerouslySetInnerHTML={{ __html: nuestraHistoria.paragraphs }}
+                    />
                 </motion.div>
                 <motion.div
                   className="relative aspect-w-16 aspect-h-9"
@@ -264,17 +267,15 @@ const AboutUs: React.FC = () => {
                           key={index}
                           variants={cardVariants}
                           className="text-base sm:text-lg leading-relaxed text-gray-600"
-                        >
-                          {description}
-                        </motion.p>
+                          dangerouslySetInnerHTML={{ __html: description }}
+                        />
                       ))
                     ) : (
                       <motion.p
                         variants={cardVariants}
                         className="text-base sm:text-lg leading-relaxed text-gray-600"
-                      >
-                        {mision.description}
-                      </motion.p>
+                        dangerouslySetInnerHTML={{ __html: mision.description }}
+                      />
                     )}
                   </p>
                 </motion.div>
@@ -293,6 +294,8 @@ const AboutUs: React.FC = () => {
                           key={index}
                           variants={cardVariants}
                           className="text-base sm:text-lg leading-relaxed text-gray-600"
+                        dangerouslySetInnerHTML={{ __html: description }}
+                          
                         >
                           {description}
                         </motion.p>
@@ -301,9 +304,9 @@ const AboutUs: React.FC = () => {
                       <motion.p
                         variants={cardVariants}
                         className="text-base sm:text-lg leading-relaxed text-gray-600"
-                      >
-                        {vision.description}
-                      </motion.p>
+                        dangerouslySetInnerHTML={{ __html: vision.description }}
+
+                      />
                     )}
                   </p>
                 </motion.div>
@@ -363,11 +366,12 @@ const AboutUs: React.FC = () => {
                     variants={cardVariants}
                     whileHover="hover"
                   >
-                    <div className="mx-auto w-32 h-32 mb-4 rounded-full overflow-hidden">
+                    <div className="mx-auto w-48 h-48 mb-4 rounded-full overflow-hidden">
                       <img
                         src={director.imageSrc}
                         alt={director.imageAlt}
                         className="w-full h-full object-cover"
+                        style={{ imageRendering: 'auto' }}
                       />
                     </div>
                     <h3 className="text-lg font-semibold text-primary">{director.name}</h3>

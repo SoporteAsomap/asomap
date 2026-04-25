@@ -125,8 +125,7 @@ class YearlyDocument(models.Model):
     class Meta:
         verbose_name = "Documento Anual"
         verbose_name_plural = "Documentos Anuales"
-        ordering = ['-year', 'account_type']
-        unique_together = ['year', 'account_type']
+        ordering = ['-year', 'account_type', 'type']
 
     def __str__(self):
         return f"{self.title} - {self.year}"

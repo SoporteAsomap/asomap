@@ -1,8 +1,7 @@
 import { httpClient } from '../../config/httpClient';
 import { ENDPOINTS } from '@/constants';
-import type { Location, LocationsResponse } from '@/interfaces';
+import type { Location, LocationAPI } from '@/interfaces';
 import { debugLog, errorLog } from '@/utils/environment';
-import { locations } from '@/mocks/locations/locationsData';
 
 // Función para verificar si está abierto ahora
 const isOpenNow = (hours: { openingTime: string; closingTime: string }) => {
@@ -59,26 +58,25 @@ const getScheduleText = (type: 'branch' | 'atm', hours?: { openingTime: string; 
 export const locationsService = {
     getLocations: async (): Promise<Location[]> => {
         try {
-            debugLog('[LocationsService] Fetching from backend');
-            const response = await httpClient.get<LocationsResponse>(
+            debugLog('[LocationsService] Fetching locations from backend');
+            const { data }: { data: LocationAPI[] } = await httpClient.get<LocationAPI[]>(
                 ENDPOINTS.COLLECTIONS.LOCATIONS.ALL
             );
-            
-            debugLog('[LocationsService] Backend response received successfully:', response.data);
-            debugLog('[LocationsService] Response count:', response.data.count);
-            debugLog('[LocationsService] Response results length:', response.data.results?.length);
-            
-            // Validar que results existe y es un array
-            if (!response.data.results || !Array.isArray(response.data.results)) {
-                debugLog('[LocationsService] No results found or results is not an array');
+
+            debugLog('[LocationsService] Backend response received successfully:', data);
+            debugLog('[LocationsService] Response length:', data?.length);
+
+            // Validar que data existe y es un array
+            if (!data || !Array.isArray(data)) {
+                debugLog('[LocationsService] No results found or data is not an array');
                 return [];
             }
-            
+
             // Transformar la respuesta de la API al formato esperado
-            const transformedLocations: Location[] = response.data.results.map(location => {
+            const transformedLocations: Location[] = data.map(location => {
                 const scheduleInfo = getScheduleText(location.type, location.hours);
                 const isCurrentlyOpen = location.hours ? isOpenNow(location.hours) : false;
-                
+
                 return {
                     id: location.id.toString(),
                     type: location.type,
@@ -93,23 +91,14 @@ export const locationsService = {
                     availabilityClass: scheduleInfo.availabilityClass
                 };
             });
-            
+
             debugLog('[LocationsService] Transformed locations count:', transformedLocations.length);
             debugLog('[LocationsService] Transformed locations:', transformedLocations);
             return transformedLocations;
-            
+
         } catch (error) {
             errorLog('[LocationsService] Error fetching locations data:', error);
-            
-            // Solo usar mock si es un error de red real (no 404)
-            if (error instanceof TypeError || (error instanceof Error && error.message.includes('fetch'))) {
-                debugLog('[LocationsService] Network error, using mock data as fallback');
-                return locations;
-            }
-            
-            // Para otros errores (404, 500, etc.), usar mock data como fallback
-            debugLog('[LocationsService] API error, using mock data as fallback');
-            return locations;
+            throw error; // Re-throw the error instead of using mock data
         }
     }
 };

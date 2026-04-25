@@ -30,6 +30,18 @@ class DebitCardPromo(models.Model):
         verbose_name="Texto del botón secundario",
         help_text="Texto del botón de acción secundaria"
     )
+    primary_button_url = models.URLField(
+        verbose_name="URL del botón principal",
+        help_text="URL a la que redirige el botón principal",
+        blank=True,
+        null=True
+    )
+    secondary_button_url = models.URLField(
+        verbose_name="URL del botón secundario",
+        help_text="URL a la que redirige el botón secundario",
+        blank=True,
+        null=True
+    )
     image = models.ImageField(
         upload_to='home/debit_card_promo/',
         verbose_name="Imagen",
@@ -202,6 +214,12 @@ class PeKeAccountSummary(models.Model):
         max_length=100,
         verbose_name="Texto del botón",
         help_text="Texto del botón de acción"
+    )
+    button_url = models.URLField(
+        verbose_name="URL del botón",
+        help_text="URL a la que redirige el botón",
+        blank=True,
+        null=True
     )
     image = models.ImageField(
         upload_to='home/peke_account_summary/',

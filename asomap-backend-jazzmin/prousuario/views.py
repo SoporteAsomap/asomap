@@ -43,11 +43,8 @@ class AbandonedAccountsSectionViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = AbandonedAccountsPagination
     
     def get_queryset(self):
-        """Optimiza las consultas con prefetch_related"""
-        return super().get_queryset().prefetch_related(
-            'account_types',
-            'account_types__yearlydocument_set'
-        )
+        """Retorna todas las secciones activas sin optimizaciones que limiten los documentos"""
+        return super().get_queryset().prefetch_related('account_types')
 
 
 class AccountTypeViewSet(viewsets.ReadOnlyModelViewSet):

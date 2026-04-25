@@ -2,11 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { certificatesService } from '@/api';
-import type { ICertificateData } from '@/interfaces';
 
 const CertificateDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [certificateData, setCertificateData] = useState<ICertificateData | null>(null);
+  const [certificateData, setCertificateData] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -16,14 +15,42 @@ const CertificateDetail: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
-        
-        if (slug) {
-          const certificate = await certificatesService.getCertificateBySlug(slug);
-          if (certificate) {
-            setCertificateData(certificate);
-          } else {
-            setError('Certificado no encontrado');
-          }
+
+        const certificates = await certificatesService.getAllCertificates();
+
+        const certificate = certificates.find((item: any) => {
+          const certificateSlug = String(item.title || '')
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '');
+
+          return certificateSlug === slug;
+        });
+
+        if (certificate) {
+          const normalizedCertificate = {
+            ...certificate,
+            id: Number(certificate.id),
+            title: certificate.title || '',
+            subtitle: certificate.subtitle || '',
+            description: certificate.description || '',
+            bannerImage: certificate.bannerImage || '',
+            certificateImage: certificate.certificateImage || '',
+            certificateType: certificate.certificateType || '',
+            ctaApply: certificate.ctaApply || '',
+            ctaRates: certificate.ctaRates || '',
+            benefits: certificate.benefits || { title: '', items: [] },
+            investment: certificate.investment || { title: '', subtitle: '', details: [], imageUrl: '' },
+            rates: certificate.rates || { title: '', items: [] },
+            requirements: certificate.requirements || { title: '', items: [] },
+            depositRates: certificate.depositRates || { title: '', items: [], validFrom: '' },
+            faq: certificate.faq || { title: '', items: [] },
+            slug: certificate.slug || '',
+          };
+
+          setCertificateData(normalizedCertificate);
+        } else {
+          setError('Certificado no encontrado');
         }
       } catch (err) {
         console.error('Error fetching certificate data:', err);
@@ -49,9 +76,33 @@ const CertificateDetail: React.FC = () => {
       y: 0,
       transition: {
         duration: 0.6,
-        ease: "easeOut"
-      }
-    }
+        ease: 'easeOut',
+      },
+    },
+  };
+
+  const renderListItems = (items: any) => {
+    if (!Array.isArray(items)) return null;
+
+    return items.map((item: any, index: number) => (
+      <li key={index}>
+        {typeof item === 'string'
+          ? item
+          : item?.text || item?.title || item?.name || 'Elemento'}
+      </li>
+    ));
+  };
+
+  const renderFaqItems = (items: any) => {
+    if (!Array.isArray(items)) return null;
+
+    return items.map((item: any, index: number) => (
+      <li key={index}>
+        {typeof item === 'string'
+          ? item
+          : `${item?.question || 'Pregunta'}${item?.answer ? `: ${item.answer}` : ''}`}
+      </li>
+    ));
   };
 
   if (loading) {
@@ -69,203 +120,126 @@ const CertificateDetail: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="text-red-500 text-6xl mb-4">⚠️</div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Error</h2>
-          <p className="text-gray-600 mb-4">{error || 'No se pudieron cargar los datos'}</p>
+          <p className="text-red-500 mb-4">{error || 'Certificado no encontrado'}</p>
           <button
             onClick={() => navigate('/productos')}
-            className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/80 transition-colors"
+            className="px-4 py-2 bg-primary text-white rounded"
           >
-            Volver a Productos
+            Volver
           </button>
         </div>
       </div>
     );
   }
 
-  const { 
-    bannerImage, 
-    certificateImage, 
-    title, 
-    subtitle, 
-    description, 
-    benefits, 
-    investment, 
-    rates, 
-    requirements, 
-    depositRates, 
-    faq 
-  } = certificateData;
-
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={sectionVariants}
-      className="relative -mt-[80px]"
-    >
-      <div className="font-sans bg-gradient-to-b from-white to-blue-50/30">
-        {/* Hero Section */}
-        <div className="relative h-[360px] sm:h-[400px] md:h-[450px] lg:h-[500px]">
+    <div className="bg-gray-50 min-h-screen">
+      {certificateData.bannerImage && (
+        <div className="w-full h-[300px] md:h-[400px] overflow-hidden">
           <img
-            src={bannerImage}
-            alt={`${title} Banner`}
-            className="w-full h-full object-cover rounded-b-[20px] sm:rounded-b-[30px] lg:rounded-b-[50px]"
+            src={certificateData.bannerImage}
+            alt={certificateData.title}
+            className="w-full h-full object-cover"
           />
         </div>
+      )}
 
-        {/* Description Section */}
-        <div className="bg-white py-8 sm:py-12 md:py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center">
-              <h1 className="text-3xl sm:text-4xl font-bold text-primary mb-4">{title}</h1>
-              <h2 className="text-xl sm:text-2xl text-gray-600 mb-4">{subtitle}</h2>
-              <p className="mt-3 text-sm sm:text-base text-gray-700">{description}</p>
-            </div>
-          </div>
-        </div>
+      <div className="container mx-auto px-4 py-10">
+        <motion.div variants={sectionVariants} initial="hidden" animate="visible">
+          <h1 className="text-3xl md:text-4xl font-bold text-primary mb-4">
+            {certificateData.title}
+          </h1>
 
-        {/* Benefits Section */}
-        <div className="bg-gray-50 py-16 sm:py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-primary sm:text-4xl">{benefits.title}</h2>
-            </div>
+          {certificateData.subtitle && (
+            <h2 className="text-xl text-gray-700 mb-4">{certificateData.subtitle}</h2>
+          )}
 
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-              {benefits.items.map((benefit, index) => (
-                <div key={index} className="flex justify-center">
-                  <div className="w-full max-w-[280px] bg-white rounded-xl shadow-lg flex flex-col items-center p-6">
-                    <h3 className="text-lg font-medium text-center text-gray-800 mb-2">
-                      {benefit.title}
-                    </h3>
-                    <p className="text-sm text-center text-gray-600">
-                      {benefit.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+          <p className="text-gray-700 mb-6">{certificateData.description}</p>
 
-        {/* Investment Section */}
-        <div className="bg-white py-12 sm:py-16 md:py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="lg:flex lg:items-start lg:justify-between">
-              <div className="lg:w-1/2 pr-0 lg:pr-8 mb-8 lg:mb-0">
-                <h2 className="text-2xl sm:text-3xl font-bold text-primary mb-4 sm:mb-6">{investment.title}</h2>
-                <p className="text-gray-600 mb-6">{investment.subtitle}</p>
-                <ul className="space-y-2 sm:space-y-4">
-                  {investment.details.map((detail, index) => (
-                    <li key={index} className="flex items-start">
-                      <span className="text-blue-700 mr-2">•</span>
-                      <p className="text-sm sm:text-base leading-6 text-gray-700">{detail}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+          {certificateData.certificateImage && (
+            <img
+              src={certificateData.certificateImage}
+              alt={certificateData.title}
+              className="w-full max-w-xl mb-6 rounded-lg shadow"
+            />
+          )}
 
-              {/* Imagen a la derecha */}
-              <div className="lg:w-1/2 flex justify-center lg:justify-end">
-                <img
-                  className="w-full max-w-[300px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[570px] h-auto object-contain"
-                  src={certificateImage}
-                  alt={title}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Rates Section */}
-        <div className="bg-gray-50 py-16 sm:py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-primary sm:text-4xl">{rates.title}</h2>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {rates.items.map((rate, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-lg font-medium text-gray-800 mb-2">{rate.label}</h3>
-                  <p className="text-2xl font-bold text-primary">{rate.value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Requirements Section */}
-        <div className="bg-white py-12 sm:py-16 md:py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-primary sm:text-4xl">{requirements.title}</h2>
-            </div>
-
-            <div className="max-w-4xl mx-auto">
-              <ul className="space-y-4">
-                {requirements.items.map((req, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="text-blue-700 mr-3 text-xl">•</span>
-                    <p className="text-lg text-gray-700">{req}</p>
-                  </li>
-                ))}
+          {certificateData.benefits?.title && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">{certificateData.benefits.title}</h2>
+              <ul className="list-disc pl-5 text-gray-700">
+                {renderListItems(certificateData.benefits.items)}
               </ul>
             </div>
-          </div>
-        </div>
+          )}
 
-        {/* Deposit Rates Section */}
-        <div className="bg-gray-50 py-16 sm:py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-primary sm:text-4xl">{depositRates.title}</h2>
-              <p className="text-gray-600 mt-2">{depositRates.validFrom}</p>
-            </div>
+          {certificateData.investment?.title && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">{certificateData.investment.title}</h2>
 
-            <div className="overflow-x-auto">
-              <table className="w-full bg-white rounded-lg shadow-lg">
-                <thead className="bg-primary text-white">
-                  <tr>
-                    <th className="px-6 py-4 text-left">Rango</th>
-                    <th className="px-6 py-4 text-center">Tasa</th>
-                    <th className="px-6 py-4 text-center">Plazo</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {depositRates.items.map((item, index) => (
-                    <tr key={index} className="border-b border-gray-200">
-                      <td className="px-6 py-4 text-gray-800">{item.range}</td>
-                      <td className="px-6 py-4 text-center font-bold text-primary">{item.rate}</td>
-                      <td className="px-6 py-4 text-center text-gray-600">{item.term}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+              {certificateData.investment.subtitle && (
+                <p className="text-gray-700 mb-3">{certificateData.investment.subtitle}</p>
+              )}
 
-        {/* FAQ Section */}
-        <div className="bg-white py-12 sm:py-16 md:py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-primary sm:text-4xl">{faq.title}</h2>
-            </div>
+              <ul className="list-disc pl-5 text-gray-700">
+                {renderListItems(certificateData.investment.details)}
+              </ul>
 
-            <div className="max-w-4xl mx-auto space-y-6">
-              {faq.items.map((item, index) => (
-                <div key={index} className="bg-gray-50 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-3">{item.question}</h3>
-                  <p className="text-gray-600">{item.answer}</p>
-                </div>
-              ))}
+              {certificateData.investment.imageUrl && (
+                <img
+                  src={certificateData.investment.imageUrl}
+                  alt={certificateData.title}
+                  className="w-full max-w-xl mt-4 rounded-lg shadow"
+                />
+              )}
             </div>
-          </div>
-        </div>
+          )}
+
+          {certificateData.rates?.title && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">{certificateData.rates.title}</h2>
+              <ul className="list-disc pl-5 text-gray-700">
+                {renderListItems(certificateData.rates.items)}
+              </ul>
+            </div>
+          )}
+
+          {certificateData.requirements?.title && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">{certificateData.requirements.title}</h2>
+              <ul className="list-disc pl-5 text-gray-700">
+                {renderListItems(certificateData.requirements.items)}
+              </ul>
+            </div>
+          )}
+
+          {certificateData.depositRates?.title && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">{certificateData.depositRates.title}</h2>
+
+              {certificateData.depositRates.validFrom && (
+                <p className="text-gray-600 mb-2">
+                  Vigente desde: {certificateData.depositRates.validFrom}
+                </p>
+              )}
+
+              <ul className="list-disc pl-5 text-gray-700">
+                {renderListItems(certificateData.depositRates.items)}
+              </ul>
+            </div>
+          )}
+
+          {certificateData.faq?.title && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">{certificateData.faq.title}</h2>
+              <ul className="list-disc pl-5 text-gray-700">
+                {renderFaqItems(certificateData.faq.items)}
+              </ul>
+            </div>
+          )}
+        </motion.div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

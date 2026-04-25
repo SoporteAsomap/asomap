@@ -13,6 +13,7 @@ const AbandonedAccounts: React.FC = () => {
   
   const [selectedYear, setSelectedYear] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
   const [datePickerOpen, setDatePickerOpen] = useState(false);
@@ -29,6 +30,7 @@ const AbandonedAccounts: React.FC = () => {
         setError(null);
         
         const abandonedAccountsData = await abandonedAccountsService.getAbandonedAccounts();
+        console.log(abandonedAccountsData, "que carajo")
         setData(abandonedAccountsData);
         
       } catch (err) {
@@ -75,53 +77,30 @@ const AbandonedAccounts: React.FC = () => {
 
   // Obtener todos los documentos de todos los años
   const allDocuments = data.years.flatMap(year => {
-    const documents = [];
-    
-    // Agregar documento abandoned si existe y tiene título
-    if (year.documents.abandoned && year.documents.abandoned.title) {
-      documents.push({
-        ...year.documents.abandoned,
-        type: 'abandoned',
-        year: year.year
-      });
-    }
-    
-    // Agregar documento inactive si existe y tiene título
-    if (year.documents.inactive && year.documents.inactive.title) {
-      documents.push({
-        ...year.documents.inactive,
-        type: 'inactive',
-        year: year.year
-      });
-    }
-    
-    return documents;
+    return year.documents.map(doc => ({
+      ...doc,
+      year: year.year
+    }));
   });
 
-  // Mapeo de IDs de tipos de cuenta a tipos de documentos
-  const getDocumentTypeFromAccountTypeId = (accountTypeId: string): string => {
-    switch (accountTypeId) {
-      case '1': return 'abandoned';
-      case '2': return 'inactive';
-      default: return '';
-    }
-  };
+  // Los botones de filtro ahora filtran por tipo de cuenta, no por tipo de documento
+  // Esto permite escalabilidad futura con diferentes tipos de cuenta
 
-  // Filtrar documentos por año y tipo
-  const filteredDocuments = selectedYear === 'all'
-    ? allDocuments
-    : allDocuments.filter(doc => doc.year === selectedYear);
+  // Filtrar documentos por año, tipo de cuenta y status
+  const filteredDocuments = allDocuments.filter(doc => {
+    const yearMatch = selectedYear === 'all' || doc.year === selectedYear;
+    const typeMatch = selectedType === 'all' || doc.accountTypeId?.toString() === selectedType;
+    const statusMatch = selectedStatus === 'all' || doc.type === selectedStatus;
 
-  const filteredDocumentsByType = selectedType === 'all'
-    ? filteredDocuments
-    : filteredDocuments.filter(doc => doc.type === getDocumentTypeFromAccountTypeId(selectedType));
+    return yearMatch && typeMatch && statusMatch;
+  });
 
 
 
-  const totalPages = Math.ceil(filteredDocumentsByType.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredDocuments.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredDocumentsByType.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredDocuments.slice(indexOfFirstItem, indexOfLastItem);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -242,6 +221,46 @@ const AbandonedAccounts: React.FC = () => {
                 </div>
               </div>
 
+              {/* Filtro por Status */}
+              <div className="flex flex-wrap gap-2 justify-center">
+                <button
+                  onClick={() => {
+                    setSelectedStatus('all');
+                    setCurrentPage(1);
+                  }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${selectedStatus === 'all'
+                      ? 'bg-[#2B4BA9] text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  Todos los Status
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedStatus('abandoned');
+                    setCurrentPage(1);
+                  }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${selectedStatus === 'abandoned'
+                      ? 'bg-[#2B4BA9] text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  Abandonadas
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedStatus('inactive');
+                    setCurrentPage(1);
+                  }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${selectedStatus === 'inactive'
+                      ? 'bg-[#2B4BA9] text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  Inactivas
+                </button>
+              </div>
+
               {/* Filtro por Año */}
               <div className="relative">
                 <button
@@ -294,7 +313,9 @@ const AbandonedAccounts: React.FC = () => {
                     <span className="text-gray-700 hover:text-[#2B4BA9] transition-colors duration-300">
                       {pdf.title}
                     </span>
-                    <span className="text-sm text-gray-500">Año {pdf.year}</span>
+                    <span className="text-sm text-gray-500">
+                      Año {pdf.year} - {pdf.type === 'abandoned' ? 'Abandonada' : 'Inactiva'}
+                    </span>
                   </div>
                 </motion.a>
               ))}

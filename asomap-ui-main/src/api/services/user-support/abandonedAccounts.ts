@@ -1,11 +1,12 @@
 import { httpClient } from '../../config/httpClient';
 import { ENDPOINTS } from '@/constants';
 import { debugLog, errorLog } from '@/utils/environment';
-import type { 
-  IAbandonedAccountsAPIResponse, 
+import type {
+  IAbandonedAccountsAPIResponse,
   IAbandonedAccountsData,
   IAccountTypeData,
-  IYearData
+  IYearData,
+  IDocumentData
 } from '@/interfaces';
 
 export const abandonedAccountsService = {
@@ -34,35 +35,32 @@ export const abandonedAccountsService = {
       // Transformar years y documents
       const years: IYearData[] = apiData.years.map(year => {
         const documents = year.documents;
-        
-        // Mapear documentos usando el campo 'type' del backend
-        const documentEntries = Object.entries(documents);
-        
-        let abandonedDoc = null;
-        let inactiveDoc = null;
-        
-        for (const [, doc] of documentEntries) {
-          if (doc.type === 'abandoned') {
-            abandonedDoc = doc;
-          } else if (doc.type === 'inactive') {
-            inactiveDoc = doc;
+
+        // Crear un array de documentos con todos los documentos
+        const allDocuments: IDocumentData[] = [];
+
+        // Iterar sobre todas las claves del objeto documents
+        Object.entries(documents).forEach(([key, doc]) => {
+          // Extraer el tipo del documento desde la clave (formato: accountTypeId_type_docId)
+          const parts = key.split('_');
+          if (parts.length === 3) {
+            const accountTypeId = parseInt(parts[0]);
+            const docType = parts[1]; // 'abandoned' o 'inactive'
+
+            allDocuments.push({
+              title: doc.title || '',
+              url: doc.url || '',
+              date: doc.date || '',
+              id: doc.id,
+              type: docType,
+              accountTypeId: accountTypeId
+            });
           }
-        }
+        });
 
         return {
           year: year.year,
-          documents: {
-            abandoned: {
-              title: abandonedDoc?.title || '',
-              url: abandonedDoc?.url || '',
-              date: abandonedDoc?.date || ''
-            },
-            inactive: {
-              title: inactiveDoc?.title || '',
-              url: inactiveDoc?.url || '',
-              date: inactiveDoc?.date || ''
-            }
-          }
+          documents: allDocuments
         };
       });
 

@@ -63,7 +63,7 @@ class AbandonedAccountsSectionSerializer(serializers.ModelSerializer):
             account_type__id__in=account_type_ids,
             is_active=True
         ).select_related('account_type').order_by('-year')
-        
+
         # Agrupar por año
         years_data = {}
         for doc in yearly_docs:
@@ -73,15 +73,19 @@ class AbandonedAccountsSectionSerializer(serializers.ModelSerializer):
                     'year': year,
                     'documents': {}
                 }
-            
+
+            # Crear clave única para cada documento: account_type_id + type + id
+            doc_key = f"{doc.account_type.id}_{doc.type}_{doc.id}"
+
             # Agregar documento al año correspondiente
-            years_data[year]['documents'][doc.account_type.id] = {
+            years_data[year]['documents'][doc_key] = {
+                'id': doc.id,
                 'title': doc.title,
                 'url': doc.document_url,
                 'date': doc.formatted_date,
                 'type': doc.type
             }
-        
+
         # Convertir a lista y ordenar por año descendente
         return sorted(years_data.values(), key=lambda x: x['year'], reverse=True)
 

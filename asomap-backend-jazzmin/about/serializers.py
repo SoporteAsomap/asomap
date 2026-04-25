@@ -22,15 +22,10 @@ class QuienesSomosSerializer(serializers.ModelSerializer):
         return obj.paragraphs_list
 
 class NuestraHistoriaSerializer(serializers.ModelSerializer):
-    paragraphs = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = NuestraHistoria
         fields = '__all__'
-
-    def get_paragraphs(self, obj):
-        """Retorna los párrafos como lista"""
-        return obj.paragraphs_list
 
 class MisionSerializer(serializers.ModelSerializer):
     class Meta:

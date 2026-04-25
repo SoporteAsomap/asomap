@@ -5,6 +5,7 @@ export interface IAccountTypeAPI {
 }
 
 export interface IDocumentAPI {
+  id: number;
   title: string;
   url: string;
   date: string;
@@ -44,17 +45,17 @@ export interface IAccountTypeData {
 }
 
 export interface IDocumentData {
+  id?: number;
   title: string;
   url: string;
   date: string;
+  type?: string;
+  accountTypeId?: number;
 }
 
 export interface IYearData {
   year: string;
-  documents: {
-    abandoned: IDocumentData;
-    inactive: IDocumentData;
-  };
+  documents: IDocumentData[];
 }
 
 export interface IAbandonedAccountsData {

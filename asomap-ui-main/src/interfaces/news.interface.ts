@@ -30,11 +30,11 @@ export interface INewsSlide {
     author?: string;
     category?: string;
     tags?: string[];
-    
+
     // Solo para detalle (opcional)
     fullContent?: INewsContent[];  // Contenido completo
     media?: INewsMedia[];          // Galería de imágenes/videos
-    relatedLinks?: INewsLink[];    // Enlaces externos
+    relatedLinks?: string[];       // Enlaces externos (URLs)
 }
 
 export interface INewsData {
@@ -54,7 +54,7 @@ export interface INewsSlideAPI {
     tags?: string[];
     full_content?: INewsContent[];
     media?: INewsMedia[];
-    related_links?: INewsLink[];
+    related_links?: string[];
 }
 
 export interface INewsAPIResponse {

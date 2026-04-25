@@ -66,6 +66,8 @@ urlpatterns = [
         'get': 'account_by_slug'
     }), name='products-accounts-by-slug'),
     
+    
+    
     path('products/loans/<str:slug>/', ProductsViewSet.as_view({
         'get': 'loan_by_slug'
     }), name='products-loans-by-slug'),

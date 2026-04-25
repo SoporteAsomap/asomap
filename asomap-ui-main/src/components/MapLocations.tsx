@@ -31,6 +31,8 @@ const MapLocations: React.FC = () => {
   const [expandedLocations, setExpandedLocations] = useState<Set<string>>(new Set());
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showDirectionsPanel, setShowDirectionsPanel] = useState(false);
+  const [selectedLocationForDirections, setSelectedLocationForDirections] = useState<Location | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
 
   const { isLoaded } = useJsApiLoader({
@@ -135,11 +137,14 @@ const MapLocations: React.FC = () => {
 
   const handleLocationSelect = useCallback((location: Location) => {
     setSelectedLocation(location);
+    setSelectedLocationForDirections(location);
+    setShowDirectionsPanel(true);
     if (window.innerWidth <= 768) {
       setIsPanelVisible(false);
     }
     panTo(location.coordinates);
   }, [panTo]);
+
 
   const toggleLocationDetails = (locationId: string) => {
     setExpandedLocations(prev => {
@@ -405,6 +410,29 @@ const MapLocations: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Panel de direcciones */}
+      {showDirectionsPanel && selectedLocationForDirections && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full h-3/4 relative">
+            <button
+              onClick={() => setShowDirectionsPanel(false)}
+              className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600 z-10"
+            >
+              ×
+            </button>
+            <iframe
+              src={`https://www.google.com/maps/embed/v1/directions?key=${process.env.VITE_GOOGLE_MAPS_API_KEY}&origin=${center ? `${center.lat},${center.lng}` : 'current+location'}&destination=${selectedLocationForDirections.coordinates.lat},${selectedLocationForDirections.coordinates.lng}&mode=driving`}
+              width="100%"
+              height="100%"
+              style={{ border: 0, borderRadius: '0.5rem' }}
+              allowFullScreen
+              loading="lazy"
+              title="Direcciones"
+            ></iframe>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };

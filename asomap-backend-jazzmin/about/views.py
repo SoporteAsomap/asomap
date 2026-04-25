@@ -21,7 +21,7 @@ from .serializers import (
 )
 
 class AboutPagination(PageNumberPagination):
-    page_size = 6
+    page_size = 30
     page_size_query_param = 'page_size'
     max_page_size = 100
 
@@ -166,20 +166,16 @@ class AboutViewSet(viewsets.ModelViewSet):
     def nuestra_historia(self, request):
         """
         Obtener historia de la institución
-        
+
         Retorna la historia completa de ASOMAP desde su fundación
         """
         try:
-            historia = NuestraHistoria.objects.filter(is_active=True).order_by('-created_at')
-            page = self.paginate_queryset(historia)
-            if page is not None:
-                serializer = NuestraHistoriaSerializer(page, many=True)
-                return self.get_paginated_response(serializer.data)
-            serializer = NuestraHistoriaSerializer(historia, many=True)
+            historia = get_object_or_404(NuestraHistoria.objects.filter(is_active=True))
+            serializer = NuestraHistoriaSerializer(historia)
             return Response(serializer.data)
         except Exception as e:
             return Response(
-                {'error': 'Historia not found'}, 
+                {'error': 'Historia not found'},
                 status=status.HTTP_404_NOT_FOUND
             )
     

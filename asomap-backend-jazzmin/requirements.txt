@@ -21,3 +21,5 @@ django-cloudinary-storage==0.3.0
 django-jazzmin==2.6.0
 django-prose-editor[sanitize]==0.16.1
 beautifulsoup4==4.12.2
+django-storages[azure]
+azure-storage-blob

@@ -106,14 +106,14 @@ class Account(models.Model):
     features = models.TextField(
         blank=True,
         verbose_name="Características",
-        help_text="Características del producto separadas por comas"
+        help_text="Características del producto separadas por /"
     )
     
     # Requisitos
     requirements = models.TextField(
         blank=True,
         verbose_name="Requisitos",
-        help_text="Requisitos para abrir la cuenta separados por comas"
+        help_text="Requisitos para abrir la cuenta separados por /"
     )
     
     # Estado
@@ -165,7 +165,7 @@ class Account(models.Model):
         Retorna las características como lista para el frontend
         """
         if self.features:
-            return [feature.strip() for feature in self.features.split(',') if feature.strip()]
+            return [feature.strip() for feature in self.features.split('/') if feature.strip()]
         return []
 
     @property
@@ -174,7 +174,7 @@ class Account(models.Model):
         Retorna los requisitos como lista para el frontend
         """
         if self.requirements:
-            return [req.strip() for req in self.requirements.split(',') if req.strip()]
+            return [req.strip() for req in self.requirements.split('/') if req.strip()]
         return []
 
     @property
@@ -328,6 +328,15 @@ class Loan(models.Model):
         return []
 
     @property
+    def banner_image_url(self):
+        """
+        Retorna la URL de la imagen de banner para el frontend
+        """
+        if self.banner_image:
+            return self.banner_image.url
+        return None
+
+    @property
     def slug(self):
         """
         Retorna el slug del título para URLs
@@ -437,14 +446,14 @@ class Card(models.Model):
     features = models.TextField(
         blank=True,
         verbose_name="Características",
-        help_text="Características de la tarjeta separadas por comas"
+        help_text="Características de la tarjeta separadas por /"
     )
     
     # Requisitos
     requirements = models.TextField(
         blank=True,
         verbose_name="Requisitos",
-        help_text="Requisitos para obtener la tarjeta separados por comas"
+        help_text="Requisitos para obtener la tarjeta separados por /"
     )
     
     # Estado
@@ -496,7 +505,7 @@ class Card(models.Model):
         Retorna las características como lista para el frontend
         """
         if self.features:
-            return [feature.strip() for feature in self.features.split(',') if feature.strip()]
+            return [feature.strip() for feature in self.features.split('/') if feature.strip()]
         return []
 
     @property
@@ -505,7 +514,7 @@ class Card(models.Model):
         Retorna los requisitos como lista para el frontend
         """
         if self.requirements:
-            return [req.strip() for req in self.requirements.split(',') if req.strip()]
+            return [req.strip() for req in self.requirements.split('/') if req.strip()]
         return []
 
     @property
@@ -710,7 +719,7 @@ class Certificate(models.Model):
     investment_details = models.TextField(
         blank=True,
         verbose_name="Detalles de inversión",
-        help_text="Detalles de la inversión separados por comas"
+        help_text="Detalles de la inversión separados por /"
     )
     
     # Tasas
@@ -731,7 +740,7 @@ class Certificate(models.Model):
     requirements = models.TextField(
         blank=True,
         verbose_name="Requisitos",
-        help_text="Requisitos separados por comas"
+        help_text="Requisitos separados por /"
     )
     
     # Tasas de depósito
@@ -805,7 +814,7 @@ class Certificate(models.Model):
         Retorna los detalles de inversión como lista para el frontend
         """
         if self.investment_details:
-            return [detail.strip() for detail in self.investment_details.split(',') if detail.strip()]
+            return [detail.strip() for detail in self.investment_details.split('/') if detail.strip()]
         return []
 
     @property
@@ -814,7 +823,7 @@ class Certificate(models.Model):
         Retorna los requisitos como lista para el frontend
         """
         if self.requirements:
-            return [req.strip() for req in self.requirements.split(',') if req.strip()]
+            return [req.strip() for req in self.requirements.split('/') if req.strip()]
         return []
 
     @property

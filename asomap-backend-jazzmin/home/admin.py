@@ -16,7 +16,7 @@ class DebitCardPromoAdmin(admin.ModelAdmin):
             'fields': ('title', 'highlighted_title', 'description')
         }),
         ('Botones de Acción', {
-            'fields': ('primary_button_text', 'secondary_button_text')
+            'fields': ('primary_button_text', 'primary_button_url', 'secondary_button_text', 'secondary_button_url')
         }),
         ('Imagen', {
             'fields': ('image', 'image_alt')
@@ -106,7 +106,7 @@ class PeKeAccountSummaryAdmin(admin.ModelAdmin):
             'fields': ('title', 'description')
         }),
         ('Botón de Acción', {
-            'fields': ('button_text',)
+            'fields': ('button_text', 'button_url')
         }),
         ('Imagen', {
             'fields': ('image', 'image_alt')

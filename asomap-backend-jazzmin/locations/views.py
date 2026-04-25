@@ -15,6 +15,7 @@ class LocationViewSet(viewsets.ModelViewSet):
     """
     queryset = Location.objects.filter(is_active=True)
     serializer_class = LocationSerializer
+    pagination_class = None  # Deshabilitar paginación para devolver todas las ubicaciones
     
     @extend_schema(
         summary="Listar ubicaciones",
@@ -25,10 +26,12 @@ class LocationViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         """
         Listar ubicaciones
-        
+
         Retorna todas las ubicaciones activas ordenadas por tipo y nombre
         """
-        return super().list(request, *args, **kwargs)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
     
     @extend_schema(
         summary="Obtener ubicación",

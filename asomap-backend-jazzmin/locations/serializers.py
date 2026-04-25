@@ -15,10 +15,10 @@ class LocationSerializer(serializers.ModelSerializer):
         ]
 
     def get_coordinates(self, obj):
-        return obj.coordinates
+        return obj.coordinates() if callable(obj.coordinates) else obj.coordinates
 
     def get_hours(self, obj):
-        return obj.hours
+        return obj.hours() if callable(obj.hours) else obj.hours
 
     def get_services(self, obj):
-        return obj.services_list
+        return obj.services_list()

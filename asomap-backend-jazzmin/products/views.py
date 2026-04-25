@@ -196,7 +196,7 @@ class ProductsViewSet(viewsets.ModelViewSet):
     def loans(self, request):
         """
         Obtener productos de préstamos hipotecarios
-        
+
         Retorna todos los productos de préstamos hipotecarios disponibles en ASOMAP
         """
         try:
@@ -212,6 +212,7 @@ class ProductsViewSet(viewsets.ModelViewSet):
                 {'error': 'Loans not found'}, 
                 status=status.HTTP_404_NOT_FOUND
             )
+
 
     @extend_schema(
         summary="Obtener préstamo por slug",

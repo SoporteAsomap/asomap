@@ -7,7 +7,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '../', ['SERVER_IP', 'SERVER_PORT', 'SERVER_PROTOCOL']);
   
   // Configurar URLs del servidor
-  const serverIP = env.SERVER_IP || 'localhost';
+  const serverIP = env.SERVER_IP || '192.168.54.10';
   const serverPort = env.SERVER_PORT || '8080';
   const serverProtocol = env.SERVER_PROTOCOL || 'http';
   
@@ -28,12 +28,12 @@ export default defineConfig(({ mode }) => {
           rewrite: (path) => path.replace(/^\/mock/, '/public/mock')
         },
         '/api': {
-          target: nginxUrl,
+          target: "http://192.168.54.10:8080",
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, '/api')
         },
         '/media': {
-          target: backendUrl,
+          target: "http://192.168.54.10:8000",
           changeOrigin: true
         }
       }

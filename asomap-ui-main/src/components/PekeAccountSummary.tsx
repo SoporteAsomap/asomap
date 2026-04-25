@@ -9,6 +9,7 @@ interface PekeAccountSummaryProps {
     buttonText: string;
     imageUrl: string;
     imageAlt: string;
+    button_url: string;
 }
 
 const PekeAccountSummary: React.FC<PekeAccountSummaryProps> = ({
@@ -16,7 +17,8 @@ const PekeAccountSummary: React.FC<PekeAccountSummaryProps> = ({
     description,
     buttonText,
     imageUrl,
-    imageAlt
+    imageAlt,
+    button_url
 }) => {
     const navigate = useNavigate();
 
@@ -43,7 +45,11 @@ const PekeAccountSummary: React.FC<PekeAccountSummaryProps> = ({
     };
 
     const handleButtonClick = () => {
-        navigate('/productos/cuenta-pekes');
+        if (button_url) {
+            window.open(button_url, '_blank');
+        } else {
+            navigate('/productos/cuenta-pekes');
+        }
     };
 
     return (

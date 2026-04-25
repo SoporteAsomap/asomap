@@ -45,8 +45,8 @@ const MediaGallery: React.FC<{ media: INewsMedia[] }> = ({ media }) => {
           processedUrl: mediaUrl,
           declaredType: item.type,
           detectedType: actualType,
-          expectedWorkingUrl: 'http://localhost:8080/media/news/Asociaci%C3%B3n_Mocana.mp4',
-          urlsMatch: mediaUrl === 'http://localhost:8080/media/news/Asociaci%C3%B3n_Mocana.mp4'
+          expectedWorkingUrl: item.url,
+          urlsMatch: mediaUrl === item.url
         });
         
         return (
@@ -71,7 +71,7 @@ const MediaGallery: React.FC<{ media: INewsMedia[] }> = ({ media }) => {
             ) : (
               <div className="relative aspect-video bg-gray-100 rounded-lg">
                 {/* Debug info - remove in production */}
-             {/* {   <div className="absolute top-2 left-2 bg-black bg-opacity-75 text-white text-xs p-1 rounded z-10">
+               <div className="absolute top-2 left-2 bg-black bg-opacity-75 text-white text-xs p-1 rounded z-10">
                   <div>URL: {mediaUrl}</div>
                   <div>Type: {actualType}</div>
                   <button 
@@ -83,7 +83,7 @@ const MediaGallery: React.FC<{ media: INewsMedia[] }> = ({ media }) => {
                   >
                     Test URL
                   </button>
-                </div>} */}
+                </div> 
                 
             
                 
@@ -388,79 +388,17 @@ const NewsDetail: React.FC = () => {
               <h2 className="text-3xl font-bold text-primary mb-8 text-center">
                 Enlaces Relacionados
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {newsItem.relatedLinks.map((link: any, index: number) => (
-                  <motion.a
+              <div className="space-y-4">
+                {newsItem.relatedLinks.map((link: string, index: number) => (
+                  <a
                     key={index}
-                    href={link.url}
+                    href={link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group block bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-200 overflow-hidden"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
+                    className="block text-primary hover:text-primary/80 underline text-lg font-medium"
                   >
-                    <div className="p-6">
-                      <div className="flex items-start gap-4">
-                        {/* Icono de enlace externo */}
-                        <div className="flex-shrink-0">
-                          <div className="flex items-center justify-center w-10 h-10 bg-primary rounded-lg group-hover:bg-primary/80 transition-colors duration-300">
-                            <svg 
-                              className="w-5 h-5 text-white" 
-                              fill="none" 
-                              stroke="currentColor" 
-                              viewBox="0 0 24 24"
-                            >
-                              <path 
-                                strokeLinecap="round" 
-                                strokeLinejoin="round" 
-                                strokeWidth={2} 
-                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" 
-                              />
-                            </svg>
-                          </div>
-                        </div>
-                        
-                        {/* Contenido del enlace */}
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-lg text-gray-800 mb-2 group-hover:text-primary transition-colors duration-300">
-                            {link.title}
-                          </h3>
-                          
-                          {link.description && (
-                            <p className="text-gray-600 text-sm leading-relaxed mb-3">
-                              {link.description.length > 120 
-                                ? `${link.description.substring(0, 120)}...` 
-                                : link.description
-                              }
-                            </p>
-                          )}
-                          
-                          {/* Indicador de enlace externo */}
-                          <div className="flex items-center text-primary text-sm font-medium group-hover:translate-x-1 transition-transform duration-300">
-                            <span>Visitar enlace</span>
-                            <svg 
-                              className="w-4 h-4 ml-1" 
-                              fill="none" 
-                              stroke="currentColor" 
-                              viewBox="0 0 24 24"
-                            >
-                              <path 
-                                strokeLinecap="round" 
-                                strokeLinejoin="round" 
-                                strokeWidth={2} 
-                                d="M9 5l7 7-7 7" 
-                              />
-                            </svg>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Borde inferior con efecto hover */}
-                    <div className="h-1 bg-gradient-to-r from-primary to-primary/50 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
-                  </motion.a>
+                    {link}
+                  </a>
                 ))}
               </div>
             </motion.div>

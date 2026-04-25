@@ -1,38 +1,24 @@
-# Configuración de Gunicorn para manejar archivos grandes
-import multiprocessing
+import os
 
-# Configuración básica
-bind = "0.0.0.0:8000"
-workers = multiprocessing.cpu_count() * 2 + 1
-worker_class = "sync"
+bind = f"0.0.0.0:{os.getenv('PORT', '8000')}"
 
-# Timeouts para archivos grandes
-timeout = 600  # 10 minutos para archivos muy grandes
-keepalive = 2
-max_requests = 1000
+# 🔥 CONTROL DE CONEXIONES
+workers = 2
+threads = 2
+worker_class = "gthread"
+
+# 🔥 ESTABILIDAD
+timeout = 120
+graceful_timeout = 30
+keepalive = 5
+
+# 🔥 EVITA MEMORY LEAKS / CONEXIONES ZOMBIES
+max_requests = 500
 max_requests_jitter = 50
 
-# Configuración para archivos grandes
-max_requests_jitter = 50
-graceful_timeout = 600  # 10 minutos
-
-# Configuración de logs
+# 🔥 LOGS
 accesslog = "-"
 errorlog = "-"
 loglevel = "info"
 
-# Configuración de worker
-worker_connections = 1000
-worker_tmp_dir = "/dev/shm"  # Usar memoria compartida para archivos temporales
-
-# Configuración de preload
-preload_app = True
-
-# Configuración de seguridad
-limit_request_line = 4094
-limit_request_fields = 100
-limit_request_field_size = 8190
-
-# Configuración para archivos grandes
-max_requests_jitter = 50
-graceful_timeout = 300
+capture_output = True

@@ -236,8 +236,10 @@ const Home: React.FC = () => {
             title={pekeAccountData.title}
             description={pekeAccountData.description}
             buttonText={pekeAccountData.button_text}
+            button_url={pekeAccountData.button_url}
             imageUrl={pekeAccountData.image_url}
             imageAlt={pekeAccountData.image_alt}
+
           />
         ) : (
           <div className="flex justify-center items-center h-32">

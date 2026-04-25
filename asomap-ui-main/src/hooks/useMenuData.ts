@@ -1,23 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import type { IconType } from 'react-icons';
+import { FaWallet, FaHandHoldingUsd, FaCreditCard, FaCertificate, FaCircle } from 'react-icons/fa';
 import { menuService } from '@/api/services/layout/menu';
-import { getMenuIconComponent } from '@/utils/menuIconMapper';
-// import type { MenuSection } from '@/api/services/layout/menu';
-import { IconType } from 'react-icons';
 
-export interface MenuItemWithIcon {
+export type MenuSubItem = {
   text: string;
   href: string;
   image: string;
   category: string;
-  icon?: IconType;
-}
+};
 
-export interface MenuSectionWithIcons {
+export type MenuSectionWithIcons = {
   text: string;
   icon: IconType;
-  subItems: MenuItemWithIcon[];
+  subItems: MenuSubItem[];
   image: string;
-}
+};
+
+const getIconBySection = (title: string): IconType => {
+  const normalized = title.toLowerCase();
+
+  if (normalized.includes('cuenta')) return FaWallet;
+  if (normalized.includes('préstamo') || normalized.includes('prestamo')) return FaHandHoldingUsd;
+  if (normalized.includes('tarjeta')) return FaCreditCard;
+  if (normalized.includes('certificado')) return FaCertificate;
+
+  return FaCircle;
+};
 
 export const useMenuData = () => {
   const [menuData, setMenuData] = useState<MenuSectionWithIcons[]>([]);
@@ -29,23 +38,30 @@ export const useMenuData = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         const menuSections = await menuService.getProductMenuItems();
-        
-        // Transformar los datos para incluir los iconos
-        const menuWithIcons: MenuSectionWithIcons[] = menuSections.map(section => ({
-          text: section.text,
-          icon: getMenuIconComponent(section.icon),
-          subItems: section.subItems,
-          image: section.image
+
+        const normalizedMenu: MenuSectionWithIcons[] = menuSections.map((section: any) => ({
+          text: section.title || '',
+          icon: getIconBySection(section.title || ''),
+          subItems: Array.isArray(section.items)
+            ? section.items.map((item: any) => ({
+                text: item.text || '',
+                href: item.href || '#',
+                image: item.image || '',
+                category: String(item.category || ''),
+              }))
+            : [],
+          image:
+            Array.isArray(section.items) && section.items.length > 0
+              ? section.items[0].image || ''
+              : '',
         }));
 
-        setMenuData(menuWithIcons);
+        setMenuData(normalizedMenu);
       } catch (err) {
         console.error('Error fetching menu data:', err);
-        setError('Error al cargar el menú');
-        // Usar datos por defecto en caso de error
-        setMenuData([]);
+        setError('No se pudo cargar el menú');
       } finally {
         setLoading(false);
       }
@@ -57,6 +73,8 @@ export const useMenuData = () => {
   return {
     menuData,
     loading,
-    error
+    error,
   };
 };
+
+export default useMenuData;
