@@ -112,11 +112,7 @@ REST_FRAMEWORK = {
     ]
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "https://www.asomap.com.do",
-    "https://asomap.com.do",
-    "https://thankful-bush-04517de0f.4.azurestaticapps.net",
-]
+CORS_ALLOWED_ORIGINS = True
 
 CSRF_TRUSTED_ORIGINS = [
     "https://www.asomap.com.do",
