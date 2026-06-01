@@ -68,3 +68,4 @@ Puedes modificar la configuración en `settings.py` bajo la clave `REST_FRAMEWOR
 
 **Equipo de desarrollo ASOMAP** # asomap-backend
 # trigger backend deploy Mon Jun  1 02:06:09 PM -04 2026
+# trigger backend deploy Mon Jun  1 02:19:33 PM -04 2026
