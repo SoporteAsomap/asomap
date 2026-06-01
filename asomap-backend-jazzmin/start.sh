@@ -54,7 +54,7 @@ else:
 }
 
 # Función para ejecutar comandos de datos iniciales
-create_initial_data() {
+# create_initial_data() {
     echo "📊 Creando datos iniciales de la aplicación..."
     
     # Verificar si ya existen datos (usando una tabla como indicador)
